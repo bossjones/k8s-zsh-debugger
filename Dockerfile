@@ -154,7 +154,7 @@ RUN \
     software-properties-common ansible \
     git-core curl wget bash vim \
     sudo \
-    && apt-get install language-pack-en-base procps file make patch autoconf bison build-essential libssl-dev libyaml-dev libreadline6-dev zlib1g-dev libncurses5-dev libffi-dev libgdbm3 libgdbm-dev -y \
+    && apt-get install language-pack-en-base procps file make patch autoconf bison build-essential libssl-dev libyaml-dev libreadline6-dev zlib1g-dev libncurses5-dev libffi-dev -y \
     && \
     apt-get install -y openssh-server \
     zsh && \
