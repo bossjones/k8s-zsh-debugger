@@ -116,7 +116,7 @@ ENV DEBIAN_FRONTEND noninteractive
 #     chown ${NON_ROOT_USER}:${NON_ROOT_USER} -Rv /home/${NON_ROOT_USER}
 
 RUN \
-    apt-get update -y && \
+    set -xe; apt-get update -y && \
     apt-get install -y \
     python sudo bash ca-certificates \
     locales \
@@ -129,7 +129,7 @@ RUN \
     mkdir /var/run/sshd
 
 # install locales package and set default locale to 'UTF-8' for the test execution environment
-RUN apt-get -y install locales && \
+RUN set -xe; apt-get -y install locales && \
     locale-gen en_US.UTF-8 && \
     dpkg-reconfigure locales && \
     update-locale LANG=en_US.UTF-8 && \
@@ -156,7 +156,7 @@ RUN echo -e "#!/bin/sh\nexit 101\n" > /usr/sbin/policy-rc.d && \
 # `universe` is needed for ruby
 # `security` is needed for fontconfig and fc-cache
 RUN \
-    add-apt-repository "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) universe security" && \
+    set -xe; add-apt-repository "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) universe security" && \
     add-apt-repository ppa:aacebedo/fasd && \
     apt-get update && \
     apt-get -y install \
@@ -189,7 +189,7 @@ RUN \
 ################################################################################################################
 
 # SOURCE: https://github.com/rastasheep/ubuntu-sshd/blob/master/16.04/Dockerfile
-RUN apt-get update \
+RUN set -xe; apt-get update \
     && apt-get install -y \
     git-core curl wget bash vim \
     sudo \
