@@ -14,6 +14,9 @@ ENV HOST_USER_ID ${HOST_USER_ID}
 ARG HOST_GROUP_ID=1000
 ENV HOST_GROUP_ID ${HOST_GROUP_ID}
 
+# make apt use ipv4 instead of ipv6 ( faster resolution )
+RUN sed -i "s@^#precedence ::ffff:0:0/96  100@precedence ::ffff:0:0/96  100@" /etc/gai.conf
+
 
 # RUN sed -i "s,# deb-src http://archive.ubuntu.com/ubuntu/ $(lsb_release -sc) main restricted,deb-src http://archive.ubuntu.com/ubuntu/ $(lsb_release -sc) main restricted,g" /etc/apt/sources.list && \
 #     sed -i "s,# deb-src http://archive.ubuntu.com/ubuntu/ $(lsb_release -sc)-updates main restricted,deb-src http://archive.ubuntu.com/ubuntu/ $(lsb_release -sc)-updates main restricted,g" /etc/apt/sources.list && \
@@ -122,7 +125,7 @@ RUN set -xe \
     chown ${NON_ROOT_USER}:${NON_ROOT_USER} -Rv /home/${NON_ROOT_USER}
 
 RUN \
-    set -xe; apt-get update -y && \
+    set -xe && apt-get update -y && \
     apt-get install -y \
     python sudo bash ca-certificates \
     locales \
@@ -135,7 +138,7 @@ RUN \
     mkdir /var/run/sshd
 
 # install locales package and set default locale to 'UTF-8' for the test execution environment
-RUN set -xe; apt-get -y install locales && \
+RUN set -xe && apt-get -y install locales && \
     locale-gen en_US.UTF-8 && \
     dpkg-reconfigure locales && \
     update-locale LANG=en_US.UTF-8 && \
@@ -162,7 +165,7 @@ RUN echo -e "#!/bin/sh\nexit 101\n" > /usr/sbin/policy-rc.d && \
 # `universe` is needed for ruby
 # `security` is needed for fontconfig and fc-cache
 RUN \
-    set -xe; add-apt-repository "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) universe security" && \
+    set -xe && add-apt-repository "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) universe security" && \
     add-apt-repository ppa:aacebedo/fasd && \
     apt-get update && \
     apt-get -y install \
@@ -195,7 +198,7 @@ RUN \
 ################################################################################################################
 
 # SOURCE: https://github.com/rastasheep/ubuntu-sshd/blob/master/16.04/Dockerfile
-RUN set -xe; apt-get update \
+RUN set -xe && apt-get update \
     && apt-get install -y \
     git-core curl wget bash vim \
     sudo \
@@ -262,6 +265,32 @@ COPY inventory.ini /inventory.ini
 RUN ansible-playbook -i /inventory.ini -c local /playbook.yml
 
 ########################################
+
+# INSTALL NVM
+# # nvm environment variables
+# ENV NVM_DIR /usr/local/nvm
+# ENV NODE_VERSION 8.5.0
+
+# # install nvm
+# # SOURCE: https://gist.github.com/remarkablemark/aacf14c29b3f01d6900d13137b21db3a
+# # https://github.com/creationix/nvm#install-script
+# RUN curl --silent -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash
+
+# # install node and npm
+# RUN source $NVM_DIR/nvm.sh \
+#     && nvm install $NODE_VERSION \
+#     && nvm alias default $NODE_VERSION \
+#     && nvm use default
+
+# # add node and npm to path so the commands are available
+# ENV NODE_PATH $NVM_DIR/versions/node/v$NODE_VERSION/lib/node_modules
+# ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
+
+# # confirm installation
+# RUN node -v
+# RUN npm -v
+
+# RUN chown ${NON_ROOT_USER}:${NON_ROOT_USER} -R /usr/local/nvm
 
 ARG BUILD_DATE
 ARG VCS_REF
