@@ -39,4 +39,7 @@ push:
 push-force: build-force push
 
 run:
-	docker run -it --net host $(username)/$(container_name) -- /bin/zsh
+	docker run --rm -i --tty -n tmp-shell $(username)/$(container_name) /bin/zsh -l
+
+# run:
+# 	docker run -it --net host $(username)/$(container_name) -- /bin/zsh
