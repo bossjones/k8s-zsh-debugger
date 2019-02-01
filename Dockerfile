@@ -9,6 +9,11 @@ ENV NON_ROOT_USER=developer \
     DEBIAN_FRONTEND=noninteractive \
     TERM=xterm
 
+ARG HOST_USER_ID=1000
+ENV HOST_USER_ID ${HOST_USER_ID}
+ARG HOST_GROUP_ID=1000
+ENV HOST_GROUP_ID ${HOST_GROUP_ID}
+
 
 # RUN sed -i "s,# deb-src http://archive.ubuntu.com/ubuntu/ $(lsb_release -sc) main restricted,deb-src http://archive.ubuntu.com/ubuntu/ $(lsb_release -sc) main restricted,g" /etc/apt/sources.list && \
 #     sed -i "s,# deb-src http://archive.ubuntu.com/ubuntu/ $(lsb_release -sc)-updates main restricted,deb-src http://archive.ubuntu.com/ubuntu/ $(lsb_release -sc)-updates main restricted,g" /etc/apt/sources.list && \
