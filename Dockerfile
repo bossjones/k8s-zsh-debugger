@@ -151,6 +151,7 @@ RUN \
     iperf \
     iperf3 \
     iputils-ping \
+    jq \
     libevent-dev \
     libffi-dev \
     libncurses-dev \
@@ -167,16 +168,19 @@ RUN \
     mtr \
     ncdu \
     net-tools \
+    netperf \
     ngrep \
     nmap \
     openssh-server \
     patch \
+    peco \
     perf-tools-unstable \
     procps \
     python \
     python-dev \
     python-setuptools \
     ruby-full \
+    silversearcher-ag \
     socat \
     software-properties-common \
     strace \
@@ -184,13 +188,19 @@ RUN \
     sysstat \
     tcpdump \
     tmux \
+    traceroute \
     tree \
     vim \
     wget \
+    httpie \
     zlib1g-dev \
     && \
     apt-get install -y \
     zsh && \
+    curl -L 'https://github.com/sharkdp/bat/releases/download/v0.9.0/bat_0.9.0_amd64.deb' > /usr/local/src/bat_0.9.0_amd64.deb && \
+    apt install -y /usr/local/src/bat_0.9.0_amd64.deb && \
+    curl -L 'https://github.com/sharkdp/fd/releases/download/v7.2.0/fd_7.2.0_amd64.deb' > /usr/local/src/fd_7.2.0_amd64.deb && \
+    apt install -y /usr/local/src/fd_7.2.0_amd64.deb && \
     sed -ri 's/^PermitRootLogin\s+.*/PermitRootLogin yes/' /etc/ssh/sshd_config && \
     sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config && \
     apt-get clean && \
@@ -242,7 +252,17 @@ WORKDIR /root
 
 RUN git clone https://github.com/samoshkin/tmux-config \
     && ./tmux-config/install.sh \
-    && rm -rf ./tmux-config
+    && rm -rf ./tmux-config && \
+    git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && \
+    ~/.fzf/install --all && \
+    curl -L 'https://github.com/heppu/gkill/releases/download/v1.0.2/gkill-linux-amd64' > /usr/local/bin/gkill && \
+    chmod +x /usr/local/bin/gkill && \
+    curl -L 'https://github.com/rgburke/grv/releases/download/v0.1.2/grv_v0.1.2_linux64' > /usr/local/bin/grv && \
+    chmod +x /usr/local/bin/grv && \
+    curl -L 'https://github.com/sharkdp/bat/releases/download/v0.9.0/bat_0.9.0_amd64.deb' > /usr/local/src/bat_0.9.0_amd64.deb && \
+    apt install -y /usr/local/src/bat_0.9.0_amd64.deb && \
+    curl -L 'https://github.com/sharkdp/fd/releases/download/v7.2.0/fd_7.2.0_amd64.deb' > /usr/local/src/fd_7.2.0_amd64.deb && \
+    apt install -y /usr/local/src/fd_7.2.0_amd64.deb
 
 ENV TERM=xterm-256color
 
