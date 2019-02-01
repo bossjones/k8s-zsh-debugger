@@ -289,7 +289,7 @@ ENV TERM=xterm-256color
 COPY playbook.yml /playbook.yml
 COPY inventory.ini /inventory.ini
 
-RUN ansible-playbook -i /inventory.ini -c local /playbook.yml
+RUN ansible-galaxy install viasite-ansible.zsh; ansible-playbook -i /inventory.ini -c local /playbook.yml
 
 ########################################
 
