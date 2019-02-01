@@ -140,6 +140,7 @@ RUN sed -ri 's/^session\s+required\s+pam_loginuid.so$/session optional pam_login
 
 # install core software for packaging and ssh communication
 RUN echo -e "#!/bin/sh\nexit 101\n" > /usr/sbin/policy-rc.d && \
+    set -xe && apt-get update -y && \
     apt-get -y install gdebi-core sshpass cron netcat net-tools iproute2 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -191,7 +192,8 @@ RUN set -xe && apt-get update \
     mkdir /var/run/sshd && \
     sed -ri 's/^PermitRootLogin\s+.*/PermitRootLogin yes/' /etc/ssh/sshd_config && \
     sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config && \
-    rm -rf /var/lib/apt/lists/
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # RUN set -xe \
 #     && useradd -U -d /home/test -m -r -G adm,sudo,dip,plugdev,tty,audio test \
