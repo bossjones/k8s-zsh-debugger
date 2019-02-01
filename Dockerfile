@@ -123,8 +123,6 @@ RUN \
     update-locale LANG=en_US.UTF-8 && \
     mkdir -p /var/run/sshd && \
     apt-get -y install gdebi-core sshpass cron netcat net-tools iproute2 && \
-    add-apt-repository ppa:aacebedo/fasd && \
-    apt-get update && \
     apt-get -y install \
     autoconf \
     bash-completion \
