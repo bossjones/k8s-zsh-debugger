@@ -107,6 +107,8 @@ RUN sed -i "s@^#precedence ::ffff:0:0/96  100@precedence ::ffff:0:0/96  100@" /e
 #         rm -rf /var/lib/{cache,log}/ && \
 #         rm -rf /var/lib/apt/lists/*.lz4
 
+
+# add-apt-repository "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) universe security" && \
 # install locales package and set default locale to 'UTF-8' for the test execution environment
 RUN \
     set -xe && apt-get update -y && \
@@ -121,7 +123,6 @@ RUN \
     update-locale LANG=en_US.UTF-8 && \
     mkdir -p /var/run/sshd && \
     apt-get -y install gdebi-core sshpass cron netcat net-tools iproute2 && \
-    add-apt-repository "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) universe security" && \
     add-apt-repository ppa:aacebedo/fasd && \
     apt-get update && \
     apt-get -y install \
