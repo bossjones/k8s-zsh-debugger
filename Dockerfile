@@ -194,6 +194,7 @@ RUN \
     wget \
     httpie \
     zlib1g-dev \
+    dnsutils \
     && \
     apt-get install -y \
     zsh && \
@@ -268,6 +269,11 @@ ENV TERM=xterm-256color
 
 COPY playbook.yml /playbook.yml
 COPY inventory.ini /inventory.ini
+
+COPY .motd.zsh /root/.motd.zsh
+COPY .motd/ /root/.motd
+COPY .zshrc.local /root/.zshrc.local
+COPY TROUBLESHOOT.md /root/TROUBLESHOOT.md
 
 RUN ansible-galaxy install viasite-ansible.zsh; ansible-playbook -i /inventory.ini -c local /playbook.yml
 
