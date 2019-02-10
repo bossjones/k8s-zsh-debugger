@@ -4,6 +4,8 @@ FROM index.docker.io/ubuntu:18.04
 # ENV TERM xterm
 # ENV DEBIAN_FRONTEND noninteractive
 
+# SOURCE: https://launchpad.net/~jonathonf/+archive/ubuntu/backports?field.series_filter=bionic
+
 ENV NON_ROOT_USER=developer \
     container=docker \
     DEBIAN_FRONTEND=noninteractive \
@@ -122,9 +124,12 @@ RUN \
     dpkg-reconfigure locales && \
     update-locale LANG=en_US.UTF-8 && \
     mkdir -p /var/run/sshd && \
+    add-apt-repository ppa:jonathonf/backports -y && \
+    apt-get update -y && \
     apt-get -y install gdebi-core sshpass cron netcat net-tools iproute2 && \
     apt-get -y install \
     ansible \
+    apt-utils \
     autoconf \
     bash \
     bash-completion \
@@ -137,6 +142,7 @@ RUN \
     ccze \
     curl \
     direnv \
+    dnsutils \
     dstat \
     elfutils \
     fasd \
@@ -146,6 +152,7 @@ RUN \
     git \
     git-core \
     htop \
+    httpie \
     iftop \
     iotop \
     iperf \
@@ -178,7 +185,9 @@ RUN \
     procps \
     python \
     python-dev \
+    python-pip \
     python-setuptools \
+    rsyslog \
     ruby-full \
     silversearcher-ag \
     socat \
@@ -186,24 +195,33 @@ RUN \
     strace \
     sudo \
     sysstat \
+    systemd \
+    systemd-cron \
     tcpdump \
     tmux \
     traceroute \
     tree \
     vim \
     wget \
-    httpie \
     zlib1g-dev \
-    dnsutils \
     && \
     apt-get install -y \
     zsh && \
+    apt-get install apt-utils \
+    python-setuptools \
+    python-pip \
+    software-properties-common \
+    rsyslog \
+    systemd \
+    systemd-cron \
+    sudo -y && \
     curl -L 'https://github.com/sharkdp/bat/releases/download/v0.9.0/bat_0.9.0_amd64.deb' > /usr/local/src/bat_0.9.0_amd64.deb && \
     apt install -y /usr/local/src/bat_0.9.0_amd64.deb && \
     curl -L 'https://github.com/sharkdp/fd/releases/download/v7.2.0/fd_7.2.0_amd64.deb' > /usr/local/src/fd_7.2.0_amd64.deb && \
     apt install -y /usr/local/src/fd_7.2.0_amd64.deb && \
     sed -ri 's/^PermitRootLogin\s+.*/PermitRootLogin yes/' /etc/ssh/sshd_config && \
     sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config && \
+    sed -i 's/^\($ModLoad imklog\)/#\1/' /etc/rsyslog.conf && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -277,6 +295,11 @@ COPY TROUBLESHOOT.md /root/TROUBLESHOOT.md
 
 RUN ansible-galaxy install viasite-ansible.zsh; ansible-playbook -i /inventory.ini -c local /playbook.yml
 
+
+COPY initctl_faker .
+RUN chmod +x initctl_faker && rm -fr /sbin/initctl && ln -s /initctl_faker /sbin/initctl
+
+
 ########################################
 
 # INSTALL NVM
@@ -302,6 +325,11 @@ RUN ansible-galaxy install viasite-ansible.zsh; ansible-playbook -i /inventory.i
 # # confirm installation
 # RUN node -v
 # RUN npm -v
+
+# Add this for systemd support
+# SOURCE: https://github.com/geerlingguy/docker-ubuntu1604-ansible/blob/master/Dockerfile
+# VOLUME ["/sys/fs/cgroup", "/tmp", "/run"]
+# CMD ["/lib/systemd/systemd"]
 
 # RUN chown ${NON_ROOT_USER}:${NON_ROOT_USER} -R /usr/local/nvm
 

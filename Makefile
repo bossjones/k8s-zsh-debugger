@@ -48,3 +48,8 @@ run-example:
 
 # tcpdump -i eth0 port 9999 -c 1 -Xvv
 #
+
+get-version:
+	docker run --rm --name get-version-zsh -i -t $(username)/$(container_name):$(GIT_SHA) /bin/zsh -c "zsh --version"
+
+ci: build get-version

@@ -1,0 +1,15 @@
+---
+language: python
+services: docker
+
+env:
+  global:
+    - ROLE_NAME: docker
+  matrix:
+    - MOLECULE_DISTRO: ubuntu1804
+    - MOLECULE_DISTRO: ubuntu1604
+
+script:
+  # Run tests.
+  - make ci
+
