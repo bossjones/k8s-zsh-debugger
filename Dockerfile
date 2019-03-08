@@ -15,6 +15,8 @@ ARG HOST_USER_ID=1000
 ENV HOST_USER_ID ${HOST_USER_ID}
 ARG HOST_GROUP_ID=1000
 ENV HOST_GROUP_ID ${HOST_GROUP_ID}
+ARG RPI_BUILD=false
+ENV RPI_BUILD ${RPI_BUILD}
 
 # make apt use ipv4 instead of ipv6 ( faster resolution )
 RUN sed -i "s@^#precedence ::ffff:0:0/96  100@precedence ::ffff:0:0/96  100@" /etc/gai.conf
@@ -124,7 +126,10 @@ RUN \
     dpkg-reconfigure locales && \
     update-locale LANG=en_US.UTF-8 && \
     mkdir -p /var/run/sshd && \
-    add-apt-repository ppa:jonathonf/backports -y && \
+    if [ "${RPI_BUILD}" = "false" ]; then \
+        add-apt-repository ppa:jonathonf/backports -y; \
+        else echo "skipping ppa"; \
+    fi && \
     apt-get update -y && \
     apt-get -y install gdebi-core sshpass cron netcat net-tools iproute2 && \
     apt-get -y install \
@@ -140,6 +145,11 @@ RUN \
     ca-certificates \
     ccache \
     ccze \
+    # conntrack-tools \
+    dhcping \
+    # drill \
+    ethtool \
+    fping \
     curl \
     direnv \
     dnsutils \
@@ -150,6 +160,12 @@ RUN \
     fontconfig \
     gcc \
     git \
+    iptables \
+    iptraf-ng \
+    libc6 \
+    libc6-dev \
+    liboping-dev \
+    ipvsadm \
     git-core \
     htop \
     httpie \
@@ -174,10 +190,13 @@ RUN \
     mlocate \
     mtr \
     ncdu \
+    nftables \
     net-tools \
+    # net-snmp \
     netperf \
     ngrep \
     nmap \
+    # nping \
     openssh-server \
     patch \
     peco \
@@ -195,8 +214,13 @@ RUN \
     strace \
     sudo \
     sysstat \
+    openssl \
+    python-crypto \
+    scapy \
     systemd \
     systemd-cron \
+    tcptraceroute \
+    util-linux \
     tcpdump \
     tmux \
     traceroute \
@@ -215,15 +239,18 @@ RUN \
     systemd \
     systemd-cron \
     sudo -y && \
-    curl -L 'https://github.com/sharkdp/bat/releases/download/v0.9.0/bat_0.9.0_amd64.deb' > /usr/local/src/bat_0.9.0_amd64.deb && \
-    apt install -y /usr/local/src/bat_0.9.0_amd64.deb && \
-    curl -L 'https://github.com/sharkdp/fd/releases/download/v7.2.0/fd_7.2.0_amd64.deb' > /usr/local/src/fd_7.2.0_amd64.deb && \
-    apt install -y /usr/local/src/fd_7.2.0_amd64.deb && \
     sed -ri 's/^PermitRootLogin\s+.*/PermitRootLogin yes/' /etc/ssh/sshd_config && \
     sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config && \
     sed -i 's/^\($ModLoad imklog\)/#\1/' /etc/rsyslog.conf && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+    # if [ "${RPI_BUILD}" = "false" ]; then \
+    #     curl -L 'https://github.com/sharkdp/bat/releases/download/v0.9.0/bat_0.9.0_amd64.deb' > /usr/local/src/bat_0.9.0_amd64.deb; \
+    #     # apt install -y /usr/local/src/bat_0.9.0_amd64.deb \
+    # else \
+    #     echo "skipping bat"; \
+    # fi && \
 
 ENV LANG en_US.UTF-8
 
@@ -274,14 +301,19 @@ RUN git clone https://github.com/samoshkin/tmux-config \
     && rm -rf ./tmux-config && \
     git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && \
     ~/.fzf/install --all && \
-    curl -L 'https://github.com/heppu/gkill/releases/download/v1.0.2/gkill-linux-amd64' > /usr/local/bin/gkill && \
-    chmod +x /usr/local/bin/gkill && \
-    curl -L 'https://github.com/rgburke/grv/releases/download/v0.1.2/grv_v0.1.2_linux64' > /usr/local/bin/grv && \
-    chmod +x /usr/local/bin/grv && \
-    curl -L 'https://github.com/sharkdp/bat/releases/download/v0.9.0/bat_0.9.0_amd64.deb' > /usr/local/src/bat_0.9.0_amd64.deb && \
-    apt install -y /usr/local/src/bat_0.9.0_amd64.deb && \
-    curl -L 'https://github.com/sharkdp/fd/releases/download/v7.2.0/fd_7.2.0_amd64.deb' > /usr/local/src/fd_7.2.0_amd64.deb && \
-    apt install -y /usr/local/src/fd_7.2.0_amd64.deb
+    if [ "${RPI_BUILD}" = "false" ]; then \
+        curl -L 'https://github.com/heppu/gkill/releases/download/v1.0.2/gkill-linux-amd64' > /usr/local/bin/gkill; \
+        chmod +x /usr/local/bin/gkill; \
+        curl -L 'https://github.com/rgburke/grv/releases/download/v0.1.2/grv_v0.1.2_linux64' > /usr/local/bin/grv; \
+        chmod +x /usr/local/bin/grv; \
+        curl -L 'https://github.com/sharkdp/fd/releases/download/v7.2.0/fd_7.2.0_amd64.deb' > /usr/local/src/fd_7.2.0_amd64.deb; \
+        apt install -y /usr/local/src/fd_7.2.0_amd64.deb; \
+    else \
+        echo "skipping all adm builds ..."; \
+    fi
+
+# curl -L 'https://github.com/sharkdp/bat/releases/download/v0.9.0/bat_0.9.0_amd64.deb' > /usr/local/src/bat_0.9.0_amd64.deb; \
+# apt install -y /usr/local/src/bat_0.9.0_amd64.deb; \
 
 ENV TERM=xterm-256color
 
@@ -300,6 +332,20 @@ COPY initctl_faker .
 RUN chmod +x initctl_faker && rm -fr /sbin/initctl && ln -s /initctl_faker /sbin/initctl
 
 
+# Installing ctop - top-like container monitor
+RUN wget https://github.com/bcicen/ctop/releases/download/v0.7.1/ctop-0.7.1-linux-amd64 -O /usr/local/bin/ctop && chmod +x /usr/local/bin/ctop
+
+# Installing calicoctl
+ARG CALICOCTL_VERSION=v3.3.1
+RUN wget https://github.com/projectcalico/calicoctl/releases/download/${CALICOCTL_VERSION}/calicoctl && chmod +x calicoctl && mv calicoctl /usr/local/bin
+
+# Netgen
+ADD netgen.sh /usr/local/bin/netgen
+
+# SOURCE: https://blog.abelotech.com/posts/how-download-github-tarball-using-curl-wget/
+# RUN curl -L https://github.com/bossjones/flake-idgen/tarball/master | tar xz
+RUN git clone https://github.com/bossjones/debug-tools /usr/local/src/debug-tools && \
+    /usr/local/src/debug-tools/update-bossjones-debug-tools
 ########################################
 
 # INSTALL NVM
